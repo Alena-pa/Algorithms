@@ -42,3 +42,12 @@
 /.vs
 /firstTask/.vs/firstTask
 /SecondTask/.vs/SecondTask
+/firstTask/firstTask/x64/Debug/firstTask.tlog
+/firstTask/firstTask/x64/Debug
+/firstTask/requests/x64/Debug/requests.tlog
+/firstTask/requests/x64/Debug
+/SecondTask/FindCount/x64/Debug/FindCount.tlog
+/SecondTask/FindCount/x64/Debug
+/SecondTask/Pairs/x64/Debug/Pairs.tlog
+/SecondTask/Pairs/x64/Debug
+/SecondTask/SecondTask/x64/Debug
