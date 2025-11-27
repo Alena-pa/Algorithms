@@ -1,41 +1,63 @@
-# Prerequisites
-*.d
+.vs/
+*.vcxproj.user
+*.vcxproj.filters
+*.sdf
+*.opensdf
+*.ipch
+*.iobj
+*.ipdb
+*.lastbuildstate
 
-# Compiled Object files
+Debug/
+Release/
+x64/Debug/
+x64/Release/
+bin/
+obj/
+
+.vs/
+
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
 *.slo
 *.lo
 *.o
 *.obj
 
-# Precompiled Headers
 *.gch
 *.pch
 
-# Linker files
 *.ilk
 
-# Debugger Files
 *.pdb
 
-# Compiled Dynamic libraries
 *.so
 *.dylib
 *.dll
 
-# Fortran module files
 *.mod
 *.smod
 
-# Compiled Static libraries
 *.lai
 *.la
 *.a
 *.lib
 
-# Executables
 *.exe
 *.out
 *.app
 
-# debug information files
 *.dwo
+
+*.log
+*.tmp
+*.cache
+*.tlog
+*.user
+*.suo
+
+*.DS_Store
+Thumbs.db
