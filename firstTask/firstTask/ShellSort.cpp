@@ -1,5 +1,4 @@
 #include <iostream>
-#include <iomanip>
 #include <vector>
 #include <math.h>
 #include <set>
@@ -7,15 +6,17 @@
 #include <chrono>
 using namespace std;
 
-vector<long long> random_vector(int n, long long max_val) {
+vector<long long> generateRandomArray(int size, long long maxValue) {
     mt19937 rng(random_device{}());
-    uniform_int_distribution<long long> dist(0, max_val);
-    vector<long long> v(n);
-    for (auto& x : v) x = dist(rng);
-    return v;
+    uniform_int_distribution<long long> dist(0, maxValue);
+    vector<long long> arr(size);
+    for (long long& value : arr) {
+        value = dist(rng);
+    }
+    return arr;
 }
 
-vector<long long> generate_smooth(int n) {
+vector<long long> generateSmoothSteps(int n) {
     set<long long> numbers = { 1 };
     vector<long long> res;
 
@@ -29,24 +30,26 @@ vector<long long> generate_smooth(int n) {
         numbers.insert(cur * 2);
         numbers.insert(cur * 3);
     }
-
     return res;
 }
 
-void shell_sort_custom(vector<long long>& v) {
-    int n = v.size();
-    auto gaps = generate_smooth(n / 3);
+void ShellSort(vector<long long>& array) {
+    int size = array.size();
+    vector<long long> steps = generateSmoothSteps(size);
 
-    for (auto it = gaps.rbegin(); it != gaps.rend(); ++it) {
-        int h = *it;
-        for (int i = h; i < n; ++i) {
-            long long temp = v[i];
-            int j = i;
-            while (j >= h && v[j - h] > temp) {
-                v[j] = v[j - h];
-                j -= h;
+    for (auto i = steps.rbegin(); i != steps.rend(); i++) {
+        long long gap = *i;
+
+        for (long long i = gap; i < size; i++) {
+            long long temp = array[i];
+            long long j = i;
+
+            while (j >= gap && array[j - gap] > temp) {
+                array[j] = array[j - gap];
+                j -= gap;
             }
-            v[j] = temp;
+
+            array[j] = gap;
         }
     }
 }
@@ -81,7 +84,7 @@ void test_generator(const vector<int>& sizes) {
         long long n = pow(10, pow10);
         cout << "\nTEST FOR N = 10^" << pow10 << " (" << n << " elements)\n";
 
-        auto vec = random_vector(n, 1e8);
+        auto vec = generateRandomArray(n, 1e8);
         test(vec, shell_sort_custom);
 
         cout << "--------------------------\n";
