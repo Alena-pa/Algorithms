@@ -39,3 +39,15 @@
 
 # debug information files
 *.dwo
+/.vs
+/firstTask/.vs/firstTask
+/firstTask/firstTask/x64/Debug
+/firstTask/requests/x64/Debug/requests.tlog
+/SecondTask/.vs/SecondTask
+/firstTask/requests/x64/Debug
+/SecondTask/FindCount/x64/Debug
+/SecondTask/Pairs/x64/Debug
+/SecondTask/SecondTask/x64/Debug/SecondTask.tlog
+/SecondTask/SecondTask/x64/Debug
+/ThirdTask
+/Dataset/.vs/Dataset
