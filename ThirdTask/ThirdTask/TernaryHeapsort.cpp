@@ -78,13 +78,14 @@ vector<int> generateRandom(int n) {
 
 int main()
 {
-    vector<int> data = generateRandom(100000);
+    vector<int> data1 = generateRandom(100000);
+    vector<int> data2 = data1;
 
-    if (!testSortSpeed("std::sort", data, [](vector<int>& v) { sort(v.begin(), v.end()); })) {
+    if (!testSortSpeed("std::sort", data1, [](vector<int>& v) { sort(v.begin(), v.end()); })) {
         return 1;
     }
 
-    if (!testSortSpeed("ternary heap sort", data, ternaryHeapSort)) {
+    if (!testSortSpeed("ternary heap sort", data2, ternaryHeapSort)) {
         return 1;
     }
 

@@ -6,84 +6,70 @@
 
 using namespace std;
 
-void countSort(vector<long long>& a, int n, long long digit) {
-    int size = a.size();
-    vector<long long> out(size);
+void countingSortByDigit(vector<long long>& array, int base, long long divisor) {
+    int size = array.size();
+    if (size <= 1) return;
 
-    if (n < 2) return;
+    vector<long long> output(size);
+    vector<int> count(base, 0);
 
-    vector<int> cnt(n, 0);
-
-    for (long long x : a) {
-        int d = (x / digit) % n;
-        cnt[d]++;
+    for (long long value : array) {
+        int digit = (value / divisor) % base;
+        count[digit]++;
     }
 
-    for (int i = 1; i < n; i++)
-        cnt[i] += cnt[i - 1];
-
-    for (int i = size - 1; i >= 0; i--) {
-        int d = (a[i] / digit) % n;
-        out[--cnt[d]] = a[i];
+    for (int i = 1; i < base; ++i) {
+        count[i] += count[i - 1];
     }
 
-    a = out;
+    for (int i = size - 1; i >= 0; --i) {
+        int digit = (array[i] / divisor) % base;
+        output[--count[digit]] = array[i];
+    }
+
+    array = output;
 }
 
-void radixSort(vector<long long>& a, int n) {
-    long long base1 = 1;
-    long long base2 = 1LL * n;
-    long long base3 = 1LL * n * n;
+void radixSort(vector<long long>& array, int n) {
+    long long firstDigitWeight = 1;
+    long long secondDigitWeight = 1LL * n;
+    long long thirdDigitWeight = 1LL * n * n;
 
-    countSort(a, n, base1);
-    countSort(a, n, base2);
-    countSort(a, n, base3);
+    countingSortByDigit(array, n, firstDigitWeight);
+    countingSortByDigit(array, n, secondDigitWeight);
+    countingSortByDigit(array, n, thirdDigitWeight);
 }
 
-vector<long long> makeRandom(int n) {
-    random_device rd;
-    mt19937_64 gen(rd());
-    long long maxv = 1LL * n * n * n - 1;
+vector<long long> generateRandomArray(int n) {
+    random_device device;
+    mt19937_64 generator(device());
+    long long maxValue = 1LL * n * n * n - 1;
+    uniform_int_distribution<long long> distribution(0, maxValue);
 
-    uniform_int_distribution<long long> dist(0, maxv);
-
-    vector<long long> a(n);
-    for (long long& x : a)
-        x = dist(gen);
-
-    return a;
+    vector<long long> array(n);
+    for (long long& value : array) {
+        value = distribution(generator);
+    }
+    return array;
 }
 
-void testSorting(int n) {
-    vector<long long> a = makeRandom(n);
-    vector<long long> b = a;
+void runSortingTest(int n) {
+    vector<long long> array = generateRandomArray(n);
+    vector<long long> reference = array;
 
-    auto t1 = chrono::high_resolution_clock::now();
-    radixSort(a, n);
-    auto t2 = chrono::high_resolution_clock::now();
+    radixSort(array, n);
+    sort(reference.begin(), reference.end());
 
-    double t_radix = chrono::duration<double>(t2 - t1).count();
-
-    auto t3 = chrono::high_resolution_clock::now();
-    sort(b.begin(), b.end());
-    auto t4 = chrono::high_resolution_clock::now();
-
-    double t_std = chrono::duration<double>(t4 - t3).count();
-
-    if (a == b)
+    if (array == reference) {
         cout << "OK\n";
-    else
+    }
+    else {
         cout << "ERROR: sorting incorrect!\n";
-
-    cout << "\nResults of sorting\n";
-    cout << "Radix sort: " << t_radix << " sec\n";
-    cout << "std::sort:  " << t_std << " sec\n";
+    }
 }
 
 int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
     int n = 50000;
-    testSorting(n);
+    runSortingTest(n);
+    return 0;
 }
