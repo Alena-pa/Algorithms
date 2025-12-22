@@ -1,70 +1,78 @@
-#include <iostream>
+﻿#include <iostream>
 #include <vector>
+#include <algorithm>
 #include <random>
 using namespace std;
 
-void print_vec(const vector<int>& v) {
-    for (int x : v) cout << x << " ";
-    cout << "\n";
+vector<int> generate_random_array(int array_size, int value_range, mt19937& gen) {
+    uniform_int_distribution<int> distrib(0, value_range - 1);
+    vector<int> arr(array_size);
+    for (int i = 0; i < array_size; ++i) {
+        arr[i] = distrib(gen);
+    }
+    return arr;
 }
 
-void generate_random(vector<int>& v, int n, int max_val) {
-    mt19937 rnd(time(nullptr));
-    for (int i = 0; i < n; i++)
-        v.push_back(rnd() % max_val);
+vector<int> build_frequency_table(const vector<int>& arr, int value_range) {
+    vector<int> frequency(value_range, 0);
+    for (int number : arr) {
+        frequency[number]++;
+    }
+    return frequency;
 }
 
-int vmax(const vector<int>& v) {
-    int mx = 0;
-    for (int x : v) mx = max(mx, x);
-    return mx;
+vector<int> build_prefix_sum(const vector<int>& frequency) {
+    vector<int> prefix_sum(frequency.size() + 1, 0);
+    for (size_t i = 1; i <= frequency.size(); ++i) {
+        prefix_sum[i] = prefix_sum[i - 1] + frequency[i - 1];
+    }
+    return prefix_sum;
 }
 
-vector<int> count_sort(const vector<int>& v) {
-    int K = vmax(v) + 1;
-    vector<int> cnt(K, 0);
-    for (int x : v) cnt[x]++;
-    return cnt;
-}
-
-void build_prefix(vector<int>& cnt) {
-    for (int i = 1; i < (int)cnt.size(); i++)
-        cnt[i] += cnt[i - 1];
-}
-
-int query(const vector<int>& pref, int l, int r) {
-    if (l == 0) return pref[r];
-    return pref[r] - pref[l - 1];
+int answer_query(int left_bound, int right_bound, const vector<int>& prefix_sum, int value_range) {
+    left_bound = max(left_bound, 0);
+    right_bound = min(right_bound, value_range - 1);
+    if (left_bound > right_bound) {
+        return 0;
+    }
+    return prefix_sum[right_bound + 1] - prefix_sum[left_bound];
 }
 
 int main() {
-    int n, max_el;
-    cout << "Enter array size and max element: ";
-    cin >> n >> max_el;
+    cout << "Enter array size N and value range K: ";
+    int array_size, value_range;
+    cin >> array_size >> value_range;
 
-    vector<int> v;
-    generate_random(v, n, max_el);
+    random_device rd;
+    mt19937 gen(rd());
+    vector<int> array = generate_random_array(array_size, value_range, gen);
 
-    cout << "Generated array: ";
-    print_vec(v);
+    if (array_size <= 100) {
+        cout << "Generated array: ";
+        for (int x : array) {
+            cout << x << " ";
+        }
+        cout << "\n";
+    }
+    else {
+        cout << "Generated array of size " << array_size << " (too large to display).\n";
+    }
 
-    vector<int> freq = count_sort(v);
-    cout << "Frequency array: ";
-    print_vec(freq);
+    vector<int> frequency = build_frequency_table(array, value_range);
+    vector<int> prefix_sum = build_prefix_sum(frequency);
 
-    build_prefix(freq);
-    cout << "Prefix sums: ";
-    print_vec(freq);
+    cout << "Enter the number of queries: ";
+    int query_count;
+    cin >> query_count;
 
-    int q;
-    cout << "Enter number of queries: ";
-    cin >> q;
+    cout << "Processing queries:\n";
+    for (int i = 0; i < query_count; ++i) {
+        int left_bound, right_bound;
+        cout << "Query " << i + 1 << ": enter segment boundaries [l, r]: ";
+        cin >> left_bound >> right_bound;
 
-    while (q--) {
-        int l, r;
-        cout << "Enter l and r: ";
-        cin >> l >> r;
-        cout << "Count in range [" << l << "," << r << "] = " << query(freq, l, r) << "\n";
+        int result = answer_query(left_bound, right_bound, prefix_sum, value_range);
+        cout << "Answer: " << result << "\n";
     }
 
     return 0;
