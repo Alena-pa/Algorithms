@@ -1,63 +1,72 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
-void merge(std::vector<int>& arr, std::vector<int>& temp, int left, int middle, int right) {
-    int i = left;
-    int j = middle + 1;
-    int k = left;
+using namespace std;
 
-    while (i <= middle && j <= right) {
-        if (arr[i] <= arr[j]) temp[k++] = arr[i++];
-        else temp[k++] = arr[j++];
-    }
+void searchCrossPairs(const vector<int>& leftHalf, const vector<int>& rightHalf, int targetSum, bool& pairFound) {
+    size_t leftPointer = 0;
+    size_t rightPointer = rightHalf.size();
 
-    while (i <= middle) temp[k++] = arr[i++];
-    while (j <= right) temp[k++] = arr[j++];
+    if (rightPointer == 0) return;
+    --rightPointer;
 
-    for (int p = left; p <= right; p++) arr[p] = temp[p];
-}
-
-void mergeSort(std::vector<int>& arr, std::vector<int>& temp, int left, int right) {
-    if (left >= right) return;
-
-    int middle = (left + right) / 2;
-    mergeSort(arr, temp, left, middle);
-    mergeSort(arr, temp, middle + 1, right);
-    merge(arr, temp, left, middle, right);
-}
-
-void findPairsWithSum(const std::vector<int>& array, int target) {
-    std::vector<int> sorted = array;
-    std::vector<int> temp(sorted.size());
-    mergeSort(sorted, temp, 0, sorted.size() - 1);
-
-    int left = 0;
-    int right = sorted.size() - 1;
-    bool found = false;
-
-    while (left < right) {
-        int sum = sorted[left] + sorted[right];
-        if (sum == target) {
-            std::cout << "(" << sorted[left] << ", " << sorted[right] << ")\n";
-            found = true;
-            left++;
-            right--;
+    while (leftPointer < leftHalf.size() && rightPointer < rightHalf.size()) {
+        long long currentSum = (long long)leftHalf[leftPointer] + rightHalf[rightPointer];
+        if (currentSum == targetSum) {
+            cout << "(" << leftHalf[leftPointer] << ", " << rightHalf[rightPointer] << ")\n";
+            pairFound = true;
+            ++leftPointer;
+            if (rightPointer == 0) break;
+            --rightPointer;
         }
-        else if (sum < target) {
-            left++;
+        else if (currentSum < targetSum) {
+            ++leftPointer;
         }
         else {
-            right--;
+            if (rightPointer == 0) break;
+            --rightPointer;
         }
     }
+}
 
-    if (!found) std::cout << "No pairs found.\n";
+void divideAndConquerSearch(vector<int>& array, int targetSum, int segmentStart, int segmentEnd, bool& pairFound) {
+    if (segmentStart >= segmentEnd) {
+        return;
+    }
+
+    int midpoint = segmentStart + (segmentEnd - segmentStart) / 2;
+
+    divideAndConquerSearch(array, targetSum, segmentStart, midpoint, pairFound);
+    divideAndConquerSearch(array, targetSum, midpoint + 1, segmentEnd, pairFound);
+
+    vector<int> leftSegment(array.begin() + segmentStart, array.begin() + midpoint + 1);
+    vector<int> rightSegment(array.begin() + midpoint + 1, array.begin() + segmentEnd + 1);
+
+    sort(leftSegment.begin(), leftSegment.end());
+    sort(rightSegment.begin(), rightSegment.end());
+
+    searchCrossPairs(leftSegment, rightSegment, targetSum, pairFound);
+}
+
+void findPairsWithGivenSum(const vector<int>& inputArray, int targetSum) {
+    if (inputArray.size() < 2) {
+        cout << "No pairs found.\n";
+        return;
+    }
+
+    vector<int> workingArray = inputArray;
+    bool foundAnyPair = false;
+    divideAndConquerSearch(workingArray, targetSum, 0, workingArray.size() - 1, foundAnyPair);
+
+    if (!foundAnyPair) {
+        cout << "No pairs found.\n";
+    }
 }
 
 int main() {
-    std::vector<int> array = { 3, 1, 5, 2, 4 };
-    int S = 6;
-
-    findPairsWithSum(array, S);
+    vector<int> numbers = { 3, 1, 5, 2, 4 };
+    int desiredSum = 6;
+    findPairsWithGivenSum(numbers, desiredSum);
     return 0;
 }

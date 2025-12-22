@@ -1,132 +1,86 @@
 ﻿#include <iostream>
-#include <string>
+#include <vector>
+#include <algorithm>
+#include <random>
+#include <limits>
 
-struct Node {
-    std::string name;
-    std::string phone;
-    Node* next;
+using namespace std;
 
-    Node(const std::string& n, const std::string& p)
-        : name(n), phone(p), next(nullptr) {
-    }
-};
-
-struct List {
-    Node* head;
-    List() : head(nullptr) {}
-};
-
-List* makeList() {
-    return new List();
-}
-
-void freeList(List* lst) {
-    Node* cur = lst->head;
-    while (cur) {
-        Node* tmp = cur;
-        cur = cur->next;
-        delete tmp;
-    }
-    delete lst;
-}
-
-int size(List* lst) {
-    int cnt = 0;
-    Node* cur = lst->head;
-    while (cur) {
-        cnt++;
-        cur = cur->next;
-    }
-    return cnt;
-}
-
-std::string headName(List* lst) {
-    return lst->head->name;
-}
-
-std::string headPhone(List* lst) {
-    return lst->head->phone;
-}
-
-void moveNodes(List* src, List* dst, int k) {
-    while (k-- > 0 && src->head) {
-        Node* n = src->head;
-        src->head = src->head->next;
-        n->next = dst->head;
-        dst->head = n;
+void insertionSort(vector<int>& arr, int left, int right) {
+    for (int i = left + 1; i <= right; ++i) {
+        int key = arr[i];
+        int j = i - 1;
+        while (j >= left && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            --j;
+        }
+        arr[j + 1] = key;
     }
 }
 
-List* mergeLists(List* a, List* b, bool byName) {
-    List* res = makeList();
-    List* tmp = makeList();
-
-    while (size(a) != 0 && size(b) != 0) {
-        std::string va = byName ? headName(a) : headPhone(a);
-        std::string vb = byName ? headName(b) : headPhone(b);
-
-        if (va < vb) moveNodes(a, tmp, 1);
-        else moveNodes(b, tmp, 1);
+void merge(vector<int>& arr, int left, int mid, int right) {
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+    vector<int> L(n1), R(n2);
+    for (int i = 0; i < n1; ++i) L[i] = arr[left + i];
+    for (int j = 0; j < n2; ++j) R[j] = arr[mid + 1 + j];
+    int i = 0, j = 0, k = left;
+    while (i < n1 && j < n2) {
+        if (L[i] <= R[j]) {
+            arr[k++] = L[i++];
+        }
+        else {
+            arr[k++] = R[j++];
+        }
     }
-
-    if (size(b) == 0) moveNodes(a, tmp, size(a));
-    else moveNodes(b, tmp, size(b));
-
-    while (tmp->head) moveNodes(tmp, res, 1);
-
-    freeList(a);
-    freeList(b);
-    freeList(tmp);
-
-    return res;
+    while (i < n1) arr[k++] = L[i++];
+    while (j < n2) arr[k++] = R[j++];
 }
 
-List* mergeSort(List* lst, bool byName) {
-    int n = size(lst);
-    if (n <= 1) return lst;
-
-    List* left = makeList();
-    List* right = makeList();
-
-    moveNodes(lst, left, n / 2);
-    moveNodes(lst, right, n - n / 2);
-
-    freeList(lst);
-
-    left = mergeSort(left, byName);
-    right = mergeSort(right, byName);
-
-    return mergeLists(left, right, byName);
-}
-
-void push(List* lst, const std::string& name, const std::string& phone) {
-    Node* n = new Node(name, phone);
-    n->next = lst->head;
-    lst->head = n;
-}
-
-void print(List* lst) {
-    Node* cur = lst->head;
-    while (cur) {
-        std::cout << cur->name << " - " << cur->phone << "\n";
-        cur = cur->next;
+void hybridMergeSort(vector<int>& arr, int left, int right, int m) {
+    if (left >= right) return;
+    if (right - left + 1 <= m) {
+        insertionSort(arr, left, right);
+        return;
     }
+    int mid = left + (right - left) / 2;
+    hybridMergeSort(arr, left, mid, m);
+    hybridMergeSort(arr, mid + 1, right, m);
+    merge(arr, left, mid, right);
+}
+
+void hybridMergeSort(vector<int>& arr, int m) {
+    if (!arr.empty()) {
+        hybridMergeSort(arr, 0, arr.size() - 1, m);
+    }
+}
+
+void test(vector<int> array, int m) {
+    vector<int> expected = array;
+    sort(expected.begin(), expected.end());
+
+    vector<int> actual = array;
+    hybridMergeSort(actual, m);
+
+    if (actual == expected) {
+        cout << "OK\n";
+    }
+    else {
+        cout << "ERROR\n";
+    }
+}
+
+vector<int> generateRandomArray(int n) {
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<int> dist(numeric_limits<int>::min(), numeric_limits<int>::max());
+    vector<int> arr(n);
+    for (int& x : arr) x = dist(gen);
+    return arr;
 }
 
 int main() {
-    List* lst = makeList();
-    push(lst, "Charlie", "555");
-    push(lst, "Alice", "222");
-    push(lst, "Bob", "444");
-
-    std::cout << "Before:\n";
-    print(lst);
-
-    lst = mergeSort(lst, true);
-
-    std::cout << "\nAfter:\n";
-    print(lst);
-
-    freeList(lst);
+    vector<int> arr = generateRandomArray(10000);
+    test(arr, 32);
     return 0;
 }
