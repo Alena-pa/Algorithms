@@ -40,8 +40,6 @@ with open(os.path.join(DATA_PATH, 'analyses.txt'), 'r', encoding='utf-8') as f:
             if tests:
                 doc_tests[name] = tests
 
-if 'лор' in doc_tests: doc_tests['отоларинголог'] = doc_tests['лор']
-
 common_docs = list(set(doc_symptoms.keys()) & set(doc_tests.keys()))
 
 def get_working_day(dt):
